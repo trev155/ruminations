@@ -1,4 +1,4 @@
-# About the Dataset
+# -- About the Dataset
 """
 https://www.kaggle.com/jonavery/incomes-by-career-and-gender
 Median weekly earnings of full-time wage and salary workers by detailed occupation and sex.
@@ -12,18 +12,15 @@ F_workers: Number of female workers, in thousands.
 F_weekly: Median weekly income for female workers, in USD.
 """
 
-# Import libraries
+# -- Import libraries
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# Import original dataset
+# -- Import original dataset
 dataset = pd.read_csv("incomes_career_gender.csv")
 
-## basic data
-print(dataset.iloc[0])
-
-## only need the rows for the top level categories
+# -- only need the rows for the top level categories
 rows = []
 for i in range(1, dataset.shape[0]):
     occupation = dataset.iloc[i, 0]
@@ -34,13 +31,13 @@ df.columns = ["Occupation Name", "Total Workers", "Median Weekly Salary",
               "Male Workers", "Median Weekly Salary (Male)",
               "Female Workers", "Median Weekly Salary (Female)"]
 
-## convert data values to ints for simplicity
+# -- convert data values to ints for simplicity
 for i in range(1, len(df.columns.values)):
     col_name = df.columns.values[i]
     df[col_name] = df[col_name].astype(int)
 
-# Plot bar graph of men/women weekly salaries
-## define reusable vars
+# -- Plot bar graph of men/women weekly salaries
+# define reusable vars
 ind = np.arange(len(df))
 width = 0.4
 salaries_m = df.iloc[:, 4].values
@@ -49,7 +46,7 @@ yticklabels = df.iloc[:, 0].values
 ylim_bottom = 2*width-1
 ylim_top = len(df)
 
-## plot the graph
+# plot the graph
 fig, ax = plt.subplots()
 ax.barh(ind, salaries_m, width, color="SkyBlue", label="Male")
 ax.barh(ind + width, salaries_f, width, color="IndianRed", label="Female")
