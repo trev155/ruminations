@@ -54,8 +54,21 @@ ax.set_title("Median Weekly Salaries across Industries (January 2015)", fontsize
 ax.tick_params(axis="x", which="major", labelsize=20)
 ax.set_xlabel("Salary ($US)", fontsize=24)
 ax.set_yticks(ind + width)
-ax.set_ylim(ylim_bottom, ylim_top)
 ax.set_yticklabels(yticklabels, fontsize=20)
 ax.legend(fontsize=32)
+plt.show()
 
+# -- Plot bar graph of number of men/women per industry
+workers_m = df.iloc[:, 3].values
+workers_f = df.iloc[:, 5].values
+
+fig, ax = plt.subplots()
+ax.barh(ind, workers_m, width, color="Navy", label="Male")
+ax.barh(ind + width, workers_f, width, color="Red", label="Female")
+ax.set_title("Number of Workers per Industry, thousands (January 2015)", fontsize=32)
+ax.tick_params(axis="x", which="major", labelsize=20)
+ax.set_xlabel("Number of Workers (1000s)", fontsize=24)
+ax.set_yticks(ind + width)
+ax.set_yticklabels(yticklabels, fontsize=20)
+ax.legend(fontsize=32)
 plt.show()

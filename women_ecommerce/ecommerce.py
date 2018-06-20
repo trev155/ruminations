@@ -44,4 +44,3 @@ plt.xticks(np.arange(num_classes), class_counts.keys(), fontsize=18, rotation=80
 ax.tick_params(axis="y", which="major", labelsize=20)
 plt.title("Number of Reviews for each Item Type", fontsize=32)
 plt.ylabel("Number of Reviews", fontsize=24)
-
