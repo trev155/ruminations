@@ -21,20 +21,18 @@ def bar_graph_class_names():
     Simple plot of number of reviews per class name
     """
     # get classes and counts
-    classes = [c for c in df.iloc[:, -1].values]
-    unique, counts = np.unique(classes, return_counts=True)
-    class_counts = dict(zip(unique, counts))
-    del class_counts["nan"]
+    class_counts = df.groupby(["Class Name"]).size().to_dict()
     class_counts = collections.OrderedDict(sorted(class_counts.items(), key=lambda x: x[1], reverse=True))
 
     # create bar graph
     num_classes = len(class_counts)
     fig, ax = plt.subplots()
-    plt.bar(np.arange(num_classes), class_counts.values(), color="Navy")
+    plt.bar(np.arange(num_classes), class_counts.values(), color="violet")
     plt.xticks(np.arange(num_classes), class_counts.keys(), fontsize=18, rotation=80)
     ax.tick_params(axis="y", which="major", labelsize=20)
     plt.title("Number of Reviews for each Item Type", fontsize=32)
     plt.ylabel("Number of Reviews", fontsize=24)
+    plt.show()
 
 
 def bag_of_words():
@@ -120,4 +118,4 @@ if __name__ == "__main__":
     bar_graph_class_names()
 
     # -- Bag of words model and classification for review texts
-    bag_of_words()
+    # bag_of_words()

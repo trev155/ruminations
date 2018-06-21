@@ -34,6 +34,113 @@ Columns:
 """
 
 
+def age_gender_histogram():
+    """
+    Create a histogram for age and gender.
+    """
+    ages_m = []
+    ages_f = []
+    for index, row in df.iterrows():
+        gender = row["Gender"]
+        if gender == "m":
+            ages_m.append(row["Age"])
+        if gender == "f":
+            ages_f.append(row["Age"])
+
+    # plot histograms
+    plt.close()
+    fig, ax = plt.subplots()
+    plt.hist(ages_m, bins=32, color="orange", alpha=0.5, label="Male")
+    plt.hist(ages_f, bins=32, color="violet", alpha=0.5, label="Female")
+    plt.xlabel("Age", fontsize=32)
+    plt.ylabel("Frequency", fontsize=32)
+    plt.title("Histogram of Ages", fontsize=48)
+    ax.tick_params(axis="x", which="major", labelsize=20)
+    ax.tick_params(axis="y", which="major", labelsize=20)
+    plt.grid(True)
+    plt.legend(prop={'size': 32})
+    plt.show()
+
+
+def categorical_data_tables():
+    """
+    Generate categorical data tables.
+    """
+    from tabulate import tabulate
+
+    # Family History
+    family_histories = pd.DataFrame(df.groupby(["family_history"]).size())
+    family_histories.columns = ["count"]
+    print(tabulate(family_histories, headers="keys", tablefmt="orgtbl"))
+
+    # Treatment
+    treatment = pd.DataFrame(df.groupby(["treatment"]).size())
+    treatment.columns = ["count"]
+    print(tabulate(treatment, headers="keys", tablefmt="orgtbl"))
+
+    # Work Interference
+    interference = pd.DataFrame(df.groupby(["work_interfere"]).size())
+    interference.columns = ["count"]
+    print(tabulate(interference, headers="keys", tablefmt="orgtbl"))
+
+    # Working Remotely
+    remotely = pd.DataFrame(df.groupby(["remote_work"]).size())
+    remotely.columns = ["count"]
+    print(tabulate(remotely, headers="keys", tablefmt="orgtbl"))
+
+    # Mental Health Benefits
+    benefits = pd.DataFrame(df.groupby(["benefits"]).size())
+    benefits.columns = ["count"]
+    print(tabulate(benefits, headers="keys", tablefmt="orgtbl"))
+
+    # Care Options
+    care_options = pd.DataFrame(df.groupby(["care_options"]).size())
+    care_options.columns = ["count"]
+    print(tabulate(care_options, headers="keys", tablefmt="orgtbl"))
+
+    # Seeking Help
+    seek_help = pd.DataFrame(df.groupby(["seek_help"]).size())
+    seek_help.columns = ["count"]
+    print(tabulate(seek_help, headers="keys", tablefmt="orgtbl"))
+
+    # Mental Health Consequence
+    mental_consequence = pd.DataFrame(df.groupby(["mental_health_consequence"]).size())
+    mental_consequence.columns = ["count"]
+    print(tabulate(mental_consequence, headers="keys", tablefmt="orgtbl"))
+
+    # Physical Health Consequence
+    physical_consequence = pd.DataFrame(df.groupby(["phys_health_consequence"]).size())
+    physical_consequence.columns = ["count"]
+    print(tabulate(physical_consequence, headers="keys", tablefmt="orgtbl"))
+
+
+def wordcloud_comments():
+    def preprocess_comment(s):
+        """
+        Preprocess a comment.
+        :return: str, preprocessed comment
+        """
+        return s.lower().strip()
+
+    def construct_stopwords():
+        """
+        Add some words to the stopwords list.
+        """
+        sw = STOPWORDS
+        added = ["employer", "employee", "employed", "company", "mental", "health", "issues", "work", "people",
+                 "know", "questions"]
+        for e in added: sw.add(e)
+        return sw
+
+    from wordcloud import WordCloud, STOPWORDS
+    comments = np.array([preprocess_comment(comment) for comment in df["comments"].values if type(comment) == str])
+    text = " ".join(comments)
+    wordcloud = WordCloud(background_color="white", width=700, height=500, collocations=False, max_words=150, stopwords=construct_stopwords())
+    wordcloud.generate(text)
+    plt.axis("off")
+    plt.imshow(wordcloud)
+
+
 if __name__ == "__main__":
     # -- Import libraries
     import numpy as np
@@ -43,6 +150,40 @@ if __name__ == "__main__":
     # -- Import dataset
     df = pd.read_csv("mental_health_in_tech_survey.csv")
 
-    pass
+    # -- Cleaning
+    # clean age data
+    median_age = np.median(df["Age"].values)
+    for i in range(len(df["Age"].values)):
+        if df["Age"].values[i] < 0 or df["Age"].values[i] > 100:
+            df["Age"].values[i] = median_age
 
+    # clean gender data
+    def decipher_gender(s):
+        """
+        Given a string, return either "m" or "f" or "o" (other)
+        This handles most of the possible strings a user could enter.
+        Some of these I infer myself (eg. malr is a typo of male).
 
+        :param s: some string, likely in the form of "m", "M", "f", "F", "male", "female", or some variant
+        :return: string
+        """
+        s = s.lower().strip()
+        if s in ["m", "male", "man", "cis male", "male (cis)", "make", "cis man", "malr", "msle"]:
+            return "m"
+        elif s in ["f", "female", "woman", "female (cis)", "femake"]:
+            return "f"
+        else:
+            # print(s)
+            return "o"
+
+    f = np.vectorize(decipher_gender)
+    df["Gender"] = f(df["Gender"])
+
+    # -- First, let's get a feel for our data. Plot a histogram of age / gender.
+    age_gender_histogram()
+
+    # -- Look at categorical data columns
+    categorical_data_tables()
+
+    # -- Wordclouds for comments
+    wordcloud_comments()
