@@ -187,3 +187,44 @@ if __name__ == "__main__":
 
     # -- Wordclouds for comments
     wordcloud_comments()
+
+    # -- Building a model for seeing what factors affect
+    # Consider only these columns
+    subDf = df[df["Country"] == "United States"]
+    subDf = df[df["tech_company"] == "Yes"]
+    # subDf = subDf[["Age", "Gender", "no_employees", "remote_work", "coworkers", "mental_health_consequence", "treatment"]]
+    subDf = subDf[["Gender", "no_employees", "coworkers", "treatment", "mental_health_consequence"]]
+    X = subDf.iloc[:, :-1].values
+    y = subDf.iloc[:, -1].values
+
+    # Encoding categorical data
+    from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+    labelencoder = LabelEncoder()
+    X[:, 0] = labelencoder.fit_transform(X[:, 0])
+    X[:, 1] = labelencoder.fit_transform(X[:, 1])
+    X[:, 2] = labelencoder.fit_transform(X[:, 2])
+    X[:, 3] = labelencoder.fit_transform(X[:, 3])
+    onehotencoder = OneHotEncoder(categorical_features=[0, 1, 2, 3])
+    X_new = onehotencoder.fit_transform(X).toarray()
+
+    # Split into training and test sets
+    from sklearn.model_selection import train_test_split
+    X_train, X_test, y_train, y_test = train_test_split(X_new, y, test_size=0.2, random_state=0)
+
+    # Feature Scaling
+    from sklearn.preprocessing import StandardScaler
+    sc = StandardScaler()
+    X_train = sc.fit_transform(X_train)
+    X_test = sc.transform(X_test)
+
+    # Fitting Naive Bayes to the Training set
+    from sklearn.linear_model import LogisticRegression
+    classifier = LogisticRegression(random_state=0)
+    classifier.fit(X_train, y_train)
+
+    # Predicting the Test set results
+    y_pred = classifier.predict(X_test)
+
+    # Making the Confusion Matrix
+    from sklearn.metrics import confusion_matrix
+    cm = confusion_matrix(y_test, y_pred)
