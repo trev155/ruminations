@@ -192,20 +192,24 @@ if __name__ == "__main__":
     # Consider only these columns
     subDf = df[df["Country"] == "United States"]
     subDf = df[df["tech_company"] == "Yes"]
-    # subDf = subDf[["Age", "Gender", "no_employees", "remote_work", "coworkers", "mental_health_consequence", "treatment"]]
-    subDf = subDf[["Gender", "no_employees", "coworkers", "treatment", "mental_health_consequence"]]
+    subDf = subDf[["Age", "Gender", "no_employees", "coworkers", "mental_health_consequence", "treatment"]]
     X = subDf.iloc[:, :-1].values
     y = subDf.iloc[:, -1].values
 
     # Encoding categorical data
     from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-    labelencoder = LabelEncoder()
-    X[:, 0] = labelencoder.fit_transform(X[:, 0])
-    X[:, 1] = labelencoder.fit_transform(X[:, 1])
-    X[:, 2] = labelencoder.fit_transform(X[:, 2])
-    X[:, 3] = labelencoder.fit_transform(X[:, 3])
-    onehotencoder = OneHotEncoder(categorical_features=[0, 1, 2, 3])
+    labelencoder_X1 = LabelEncoder()
+    X[:, 1] = labelencoder_X1.fit_transform(X[:, 1])
+    labelencoder_X2 = LabelEncoder()
+    X[:, 2] = labelencoder_X2.fit_transform(X[:, 2])
+    labelencoder_X3 = LabelEncoder()
+    X[:, 3] = labelencoder_X3.fit_transform(X[:, 3])
+    labelencoder_X4 = LabelEncoder()
+    X[:, 4] = labelencoder_X4.fit_transform(X[:, 4])
+    onehotencoder = OneHotEncoder(categorical_features= [1, 2, 3, 4])
+
     X_new = onehotencoder.fit_transform(X).toarray()
+    X_new = X_new[:, [1, 2, 4, 5, 6, 7, 9, 10, 12, 13, 14]]
 
     # Split into training and test sets
     from sklearn.model_selection import train_test_split
@@ -217,7 +221,14 @@ if __name__ == "__main__":
     X_train = sc.fit_transform(X_train)
     X_test = sc.transform(X_test)
 
-    # Fitting Naive Bayes to the Training set
+    # Dimensionality Reduction
+    from sklearn.decomposition import PCA
+    pca = PCA(n_components=2)
+    X_train = pca.fit_transform(X_train)
+    X_test = pca.transform(X_test)
+    explained_variance = pca.explained_variance_ratio_
+
+    # Fitting a Model
     from sklearn.linear_model import LogisticRegression
     classifier = LogisticRegression(random_state=0)
     classifier.fit(X_train, y_train)
